@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thomas Dutoit</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topmask" aria-hidden="true"></div>
+
+  <!-- Carrousel affiché au survol de « Designer graphique », centré sur la page.
+       Deux calques superposés qui se fondent l'un dans l'autre (crossfade). -->
+  <div class="hover-carousel" id="hover-carousel" aria-hidden="true">
+    <img alt="" class="hc-layer">
+    <img alt="" class="hc-layer">
+  </div>
+
+  <header class="frontpage">
+    <span class="col-1">Thomas Dutoit</span>
+    <span class="col-2">Designer graphique</span>
+    <a class="col-6" href="#" id="info-toggle">Info</a>
+  </header>
+
+  <main class="info-content" id="info">
+    <!-- FR -->
+    <div class="lang is-active" data-lang="fr">
+      <p>Designer graphique et scénographe basée à marseille,<br>
+        mon travail est à la croisée du signe et de l’espace.<br>
+        Diplômé de l’ésad saint-étienne, j'ai exercé plusieurs<br>
+        années au sein du studio de design graphique trafik.</p>
+
+      <p>Je travaille en collaboration avec un large  éventail<br>
+        de partenaires et de clients créatifs et durables.<br>
+        Principalement dans les champs de la culture,<br>
+        de l’art et de l’architecture. J’accompagne mes clients <br>
+        dans la production d’identité visuelle, de design<br>
+        éditorial, de scénographie et de signalétique.<br>
+        </p>
+
+      <p>1/7e collectif ppdesigner.</p>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+      <!-- 1. Crédits (à remplir plus tard) -->
+      <div class="col-1 foot-col foot-exp" id="credits">
+        <button type="button" class="foot-toggle" aria-expanded="false">Crédits</button>
+        <div class="foot-wrap">
+          <div class="foot-panel">
+            © thomas dutoit 2026
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Clients (déroule la liste, la page se centre dessus) -->
+      <div class="col-2 foot-col foot-exp" id="clients">
+        <button type="button" class="foot-toggle" aria-expanded="false">Clients</button>
+        <div class="foot-wrap">
+          <ul class="foot-panel foot-list">
+            <li>Adidas arena</li>
+            <li>Aimko</li>
+            <li>Biennale Internationale de Design de Saint-Étienne</li>
+            <li>chaix&amp;morel</li>
+            <li>chu pasteur&nbsp;2</li>
+            <li>La Cinémathèque française</li>
+            <li>Emma Faury--Graziani</li>
+            <li>Esad Saint Étienne</li>
+            <li>ésadhar</li>
+            <li>Lëtzebuerg city museum</li>
+            <li>Le Mucem</li>
+            <li>Onda</li>
+            <li>Perrine Kamoun</li>
+            <li>Sytral Mobilité</li>
+            <li>Tap Poitiers</li>
+            <li>TSQY</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. Contact (déroule insta + mail) -->
+      <div class="col-3 foot-col foot-exp" id="contact">
+        <button type="button" class="foot-toggle" aria-expanded="false">Contact</button>
+        <div class="foot-wrap">
+          <div class="foot-panel">
+            <a href="https://www.instagram.com/samohttd/" target="_blank" rel="noopener">@samohttd</a><br>
+            <a href="mailto:hello@thomasdutoit.fr">hello@thomasdutoit.fr</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Portfolio (déroule « ↗ sur demande ») -->
+      <div class="col-4 foot-col foot-exp" id="portfolio">
+        <button type="button" class="foot-toggle" aria-expanded="false">Portfolio</button>
+        <div class="foot-wrap">
+          <div class="foot-panel">
+            <a href="mailto:hello@thomasdutoit.fr">↗ sur demande</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  <script>
+    /* ---- Carrousel au survol de « Designer graphique » ----
+       Défile une image toutes les 200 ms tant que la souris reste sur le mot.
+       Déposez vos images dans le dossier images/ nommées 01.jpg, 02.jpg, …
+       (jpg, png ou webp — adaptez l'extension ci-dessous). Les fichiers
+       absents sont ignorés automatiquement, l'ordre est conservé. */
+    const carouselSources = [
+      'images/01.jpg', 'images/02.jpg', 'images/03.jpg', 'images/04.jpg',
+      'images/05.jpg', 'images/06.jpg', 'images/07.jpg', 'images/08.jpg',
+      'images/09.jpg', 'images/10.jpg', 'images/11.jpg', 'images/12.jpg'
+    ];
+    const carousel = document.getElementById('hover-carousel');
+    const carouselLayers = carousel.querySelectorAll('.hc-layer');
+
+    // Précharge ET pré-décode (anti-saccade) ; ne retient que les présentes.
+    const carouselLoaded = new Array(carouselSources.length).fill(null);
+    carouselSources.forEach((src, i) => {
+      const im = new Image();
+      im.onload = () => {
+        carouselLoaded[i] = src;
+        if (im.decode) { im.decode().catch(() => {}); }
+      };
+      im.src = src;
+    });
+
+    const designerLabel = document.querySelector('.frontpage .col-2');
+    let carouselTimer = null;
+    let carouselIndex = 0;
+    let carouselFront = 0; // calque actuellement visible (0 ou 1)
+
+    designerLabel.addEventListener('mouseenter', () => {
+      const frames = carouselLoaded.filter(Boolean);
+      if (!frames.length) return;
+      carouselIndex = 0;
+      carouselFront = 0;
+      carouselLayers[0].src = frames[0];
+      carouselLayers[0].classList.add('is-front');
+      carouselLayers[1].classList.remove('is-front');
+      carousel.classList.add('is-visible');
+      carouselTimer = window.setInterval(() => {
+        carouselIndex = (carouselIndex + 1) % frames.length;
+        const back = 1 - carouselFront;           // calque caché : on y met l'image suivante
+        carouselLayers[back].src = frames[carouselIndex];
+        carouselLayers[back].classList.add('is-front');    // il apparaît…
+        carouselLayers[carouselFront].classList.remove('is-front'); // …pendant que l'autre s'efface
+        carouselFront = back;
+      }, 200);
+    });
+
+    designerLabel.addEventListener('mouseleave', () => {
+      window.clearInterval(carouselTimer);
+      carouselTimer = null;
+      carousel.classList.remove('is-visible');
+    });
+
+    const toggle = document.getElementById('info-toggle');
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.toggle('info-open');
+    });
+
+    // Footer : cliquer sur n'importe quelle colonne ouvre/ferme les 4 ensemble
+    const siteFooter = document.querySelector('.site-footer');
+    const footToggles = document.querySelectorAll('.foot-exp .foot-toggle');
+    footToggles.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const open = siteFooter.classList.toggle('foot-open');
+        footToggles.forEach((b) => b.setAttribute('aria-expanded', open));
+        // scroll doux : on centre sur la liste clients (la plus longue) à l'ouverture
+        const clientsPanel = document.querySelector('#clients .foot-panel');
+        const target = open ? clientsPanel : siteFooter;
+        window.setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, open ? 320 : 0);
+      });
+    });
+  </script>
+</body>
+</html>

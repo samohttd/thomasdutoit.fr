@@ -1,0 +1,279 @@
+@font-face {
+  font-family: "Modern Gothic";
+  src: url("fonts/modern-gothic-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Modern Gothic";
+  src: url("fonts/modern-gothic-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: "Modern Gothic", sans-serif;
+
+  /* colonne verticale : le footer est poussé en bas de l'écran */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-content {
+  flex: 1 1 auto; /* occupe l'espace, pousse le footer en bas */
+}
+
+.frontpage {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  padding: 0 29px;
+  z-index: 2;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+
+  transition: top 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+              transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Fond blanc fixe derrière le header : masque le texte qui défile dessous.
+   z-index 1 = au-dessus du contenu (0), sous le texte du header (2).
+   Couvre du haut de l'écran jusqu'au bas du header (top:24px + hauteur 12px). */
+.topmask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px; /* bas du header : top 16px + hauteur 12px */
+  background: #ffffff;
+  z-index: 1;
+}
+
+/* Bande glissée vers le haut au clic sur Info */
+body.info-open .frontpage {
+  top: 16px;
+  transform: translateY(0);
+}
+
+.frontpage span,
+.frontpage a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.frontpage span:hover,
+.frontpage a:hover {
+  color: #d1d1d1; /* gris 18% (teinte de noir) */
+}
+
+/* ---- Bloc texte principal (Info) ---- */
+.info-content {
+  /* Même largeur que la grille (4 colonnes), suit l'écran */
+  padding: 49px 24px 48px; /* 25px fixes sous le header + marges */
+
+  /* Corps calé homothétiquement sur la largeur de page jusqu'à 3024px :
+     la ligne la plus longue remplit la largeur, donc les retours à la
+     ligne forcés (<br>) ne débordent jamais. Au-delà de 3024px le corps
+     se fige (plafonné à ~108,6px) et les retours forcés sautent
+     (voir la media query plus bas) pour que le texte se remette à couler. */
+  font-size: min(calc((100vw - 48px) * 0.0365), 108.62px);
+  font-weight: 700;
+  line-height: 0.913;      /* 42/46, proportionnel au corps */
+  letter-spacing: -0.013em; /* -0,6px pour un corps de 46px */
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease 0.25s,
+              transform 0.5s ease 0.25s,
+              visibility 0s linear 0.75s;
+}
+
+body.info-open .info-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.5s ease 0.35s,
+              transform 0.5s ease 0.35s,
+              visibility 0s;
+}
+
+.info-content p {
+  margin-bottom: 0.6em;
+}
+
+.info-content a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.info-content a:hover {
+  color: #d1d1d1; /* gris 18% (teinte de noir) */
+}
+
+/* Au-delà de 3024px : les retours à la ligne forcés du texte sautent,
+   le texte se remet à couler et remplit la largeur (le bloc contact garde
+   ses propres <br>). */
+@media (min-width: 3024px) {
+  .info-content .lang > p > br {
+    display: none;
+  }
+}
+
+/* ---- Footer : même style que le header, en bas de l'écran (dans le flux) ---- */
+.site-footer {
+  padding: 0 24px 16px; /* 16px du bord bas, comme le header en haut */
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: start; /* la liste clients s'ouvre vers le bas sous « Clients » */
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal; /* annule l'interlettrage du bloc texte */
+
+  /* caché tant que la page Info n'est pas ouverte */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+body.info-open .site-footer {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease 0.35s, visibility 0s;
+}
+
+.site-footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.site-footer a:hover {
+  color: #d1d1d1; /* gris 18% (teinte de noir) */
+}
+
+/* ---- Menus dépliants du footer (Clients, Contact, Portfolio) ---- */
+.foot-toggle {
+  font: inherit;          /* hérite du 12px bold du footer */
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: inherit;    /* suit l'alignement de la colonne */
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.foot-toggle:hover {
+  color: #d1d1d1; /* gris 18% (teinte de noir) */
+}
+
+/* Déroulé vers le bas animé (grid-template-rows 0fr → 1fr :
+   anime vers la hauteur réelle, ouverture ET fermeture symétriques) */
+.foot-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.45s ease, opacity 0.3s ease;
+}
+
+/* état partagé : un clic sur n'importe quelle colonne ouvre les 4 */
+.site-footer.foot-open .foot-wrap {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.foot-panel {
+  overflow: hidden;    /* nécessaire pour l'effondrement en 0fr */
+  padding-top: 0.9em;  /* espace sous l'intitulé */
+}
+
+/* Liste clients par typologie */
+.foot-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.foot-list li {
+  line-height: 1.1;
+}
+
+.foot-list .cat {
+  color: #d1d1d1; /* catégorie en gris 18% */
+}
+
+.foot-list .cat:not(:first-child) {
+  margin-top: 1.1em; /* séparation entre typologies */
+}
+
+/* ---- Carrousel au survol de « Designer graphique » ---- */
+.hover-carousel {
+  position: fixed;
+  inset: 0;                  /* plein écran, les images sont centrées dedans */
+  display: grid;
+  place-items: center;
+  z-index: 1;               /* en arrière-plan : sous le texte du header (z-index 2) */
+  pointer-events: none;      /* laisse passer le survol au texte dessus */
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease, visibility 0s linear 0.12s;
+}
+
+.hover-carousel.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.12s ease;
+}
+
+/* Les 2 calques sont empilés dans la même cellule de grille, centrés,
+   et se fondent l'un dans l'autre par l'opacité (crossfade). */
+.hover-carousel img {
+  grid-area: 1 / 1;
+  width: auto;
+  height: auto;
+  max-width: 42vw;
+  max-height: 62vh;
+
+  opacity: 0;
+  transition: opacity 0.08s ease;
+}
+
+.hover-carousel img.is-front {
+  opacity: 1;
+}
+
+.col-1 { grid-column: 1; }
+.col-2 { grid-column: 2; }
+.col-3 { grid-column: 3; }
+.col-4 { grid-column: 4; text-align: right; white-space: nowrap; }
+.col-6 { grid-column: 4; text-align: right; }
